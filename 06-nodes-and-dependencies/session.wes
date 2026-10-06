@@ -1,0 +1,51 @@
+// Keep this chapter's refresh demonstrations manual until step 6.
+:workspace policy mode:manual
+// ---
+// Step 1: Dependencies
+sh run cmd:"printf 3" > replicas
+:calc { return 250; } > perReplicaRps
+:calc {
+  return int(text($replicas.stdout)) * $perReplicaRps;
+} > capacityRps
+:calc { return $capacityRps - 600; } > headroomRps
+// ---
+:inspect $headroomRps
+// ---
+// Step 2: Listing results
+:list names
+// ---
+// Step 3: Refresh one result
+:refresh $replicas
+// ---
+:read $headroomRps
+// ---
+:calc { return $headroomRps > 0; } > healthy
+// ---
+// Step 4: Refresh downstream
+:refresh $replicas scope:downstream
+// ---
+// Step 5: Change a command
+:change $replicas cmd:"printf 5"
+// ---
+:refresh $replicas scope:downstream
+// ---
+:read $headroomRps
+// ---
+// Step 6: Execution policy
+:workspace policy mode:reactive
+// ---
+:refresh $replicas
+// ---
+// Step 7: Timeouts
+:timeout $replicas after:PT2S
+// ---
+:change $replicas cmd:"sleep 5; printf 9"
+// ---
+:refresh $replicas
+// ---
+// Step 8: Unbind and remove
+:name unbind "healthy"
+// ---
+:remove $replicas scope:downstream
+// ---
+:list names

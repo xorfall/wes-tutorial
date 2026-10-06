@@ -1,0 +1,10 @@
+types:
+  RequestLine:
+    base: Text
+    pattern: '^[0-9.]+ [A-Z]+ /'
+iterators:
+  requestEntries:
+    input: Text
+    output: 'Iter<RequestLine>'
+    mode: matches
+    pattern: '(?m)^[0-9.]+ [A-Z]+ /.*$'

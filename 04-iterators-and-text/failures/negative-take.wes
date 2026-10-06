@@ -1,0 +1,1 @@
+:calc { return iter.lines("a\nb").take(-1).collect(); } > first

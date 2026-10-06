@@ -1,0 +1,6 @@
+:calc {
+  return double(2);
+  function double(n) {
+    return n * 2;
+  }
+} > early

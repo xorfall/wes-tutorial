@@ -1,0 +1,1 @@
+:calc { return iter.split("a,b", "").collect(); } > parts

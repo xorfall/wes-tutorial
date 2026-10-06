@@ -1,0 +1,1 @@
+:calc { return iter.matches("status=503", "status=(?=5)").count(); } > hits

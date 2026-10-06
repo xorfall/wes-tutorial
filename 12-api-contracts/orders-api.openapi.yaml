@@ -1,0 +1,115 @@
+# Contract of the synthetic orders-api service used by chapters 12 and 13.
+openapi: 3.1.0
+info:
+  title: Orders API
+  version: "1.4.0"
+servers:
+  - url: http://127.0.0.1:8770
+paths:
+  /health:
+    get:
+      operationId: health
+      summary: Report whether the service is healthy
+      security: []
+      responses:
+        "200":
+          description: Service health
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status, version]
+                properties:
+                  status: {type: string, enum: [ok, degraded]}
+                  version: {type: string}
+  /orders:
+    get:
+      operationId: listOrders
+      summary: List orders, newest first
+      security: []
+      parameters:
+        - name: limit
+          in: query
+          required: true
+          schema: {type: integer, minimum: 1, maximum: 50}
+        - name: status
+          in: query
+          required: false
+          schema: {type: string, enum: [open, shipped, failed]}
+      responses:
+        "200":
+          description: Orders
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: "#/components/schemas/Order"}
+  /orders/{id}:
+    get:
+      operationId: getOrder
+      summary: Read one order
+      security: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: integer, minimum: 1}
+      responses:
+        "200":
+          description: One order
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Order"}
+        "404":
+          description: Unknown order
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Problem"}
+  /refunds:
+    get:
+      operationId: listRefunds
+      summary: List refunds issued today
+      security:
+        - opsToken: []
+        - opsBasic: []
+      parameters:
+        - name: limit
+          in: query
+          required: true
+          schema: {type: integer, minimum: 1, maximum: 50}
+      responses:
+        "200":
+          description: Refunds
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: "#/components/schemas/Refund"}
+        "401":
+          description: Missing or invalid credentials
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Problem"}
+components:
+  securitySchemes:
+    opsToken: {type: http, scheme: bearer}
+    opsBasic: {type: http, scheme: basic}
+  schemas:
+    Order:
+      type: object
+      required: [id, status, totalCents]
+      properties:
+        id: {type: integer}
+        status: {type: string, enum: [open, shipped, failed]}
+        totalCents: {type: integer}
+    Refund:
+      type: object
+      required: [orderId, amountCents]
+      properties:
+        orderId: {type: integer}
+        amountCents: {type: integer}
+    Problem:
+      type: object
+      required: [error]
+      properties:
+        error: {type: string}

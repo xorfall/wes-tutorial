@@ -1,0 +1,2 @@
+PromRange query:"wes_demo_metric_that_does_not_exist" window:$window > empty
+Draw input:$empty.body span:$window p:$queries.rate.plot > emptyData

@@ -1,0 +1,29 @@
+// Step 3: Plan
+:env plan file:"09-environments-and-targets/lab/environments.yaml" > proposed
+// ---
+// Step 4: Apply and select
+:env apply $proposed
+// ---
+:env use "lab"
+// ---
+:list providers
+// ---
+// Step 5: Run on three targets
+local run cmd:"echo running on the local machine" > onLocal
+// ---
+app run cmd:"hostname; cat VERSION; echo $SERVICE_VERSION" > onApp
+// ---
+edge run cmd:"hostname; whoami; cat /etc/edge-release" > onEdge
+// ---
+// Step 6: Outputs are data
+:calc {
+  return {
+    app:  iter.lines(text($onApp.stdout)).collect(),
+    edge: iter.lines(text($onEdge.stdout)).collect(),
+  };
+} > hosts
+// ---
+app run cmd:"cat missing.txt" > missing
+// ---
+// Step 7: When a target fails
+edge run cmd:"sleep 3; echo late" timeout:PT1S > slow

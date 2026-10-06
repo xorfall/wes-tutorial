@@ -1,0 +1,184 @@
+# Contract for the two Prometheus HTTP API query operations used by chapter 14.
+# It describes the real Prometheus API; the lab server listens on 127.0.0.1:19091.
+openapi: 3.1.0
+info:
+  title: Prometheus query API
+  version: "1"
+servers:
+  - url: http://127.0.0.1:19091
+paths:
+  /api/v1/query:
+    get:
+      operationId: query
+      summary: Evaluate a PromQL expression at one instant
+      security: []
+      parameters:
+        - name: query
+          in: query
+          required: true
+          description: PromQL expression
+          schema: {type: string, minLength: 1}
+        - name: time
+          in: query
+          required: false
+          description: Evaluation time, RFC 3339 or Unix seconds; the server time when absent
+          schema: {type: string, minLength: 1}
+      responses:
+        "200":
+          description: The expression was evaluated
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/QuerySuccess"}
+        "400":
+          description: Missing or invalid parameters
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Failure"}
+        "422":
+          description: The expression could not be executed
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Failure"}
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Failure"}
+        "503":
+          description: The query timed out or was aborted
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Failure"}
+  /api/v1/query_range:
+    get:
+      operationId: queryRange
+      summary: Evaluate a PromQL expression at regular steps over a time range
+      security: []
+      parameters:
+        - name: query
+          in: query
+          required: true
+          description: PromQL expression
+          schema: {type: string, minLength: 1}
+        - name: start
+          in: query
+          required: true
+          description: Start of the range, RFC 3339 or Unix seconds, inclusive
+          schema: {type: string, minLength: 1}
+        - name: end
+          in: query
+          required: true
+          description: End of the range, RFC 3339 or Unix seconds, inclusive
+          schema: {type: string, minLength: 1}
+        - name: step
+          in: query
+          required: true
+          description: Resolution step, a duration such as 5s or a number of seconds
+          schema: {type: string, minLength: 1}
+      responses:
+        "200":
+          description: The expression was evaluated over the range
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/RangeSuccess"}
+        "400":
+          description: Missing or invalid parameters, or more than 11,000 points per series
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Failure"}
+        "422":
+          description: The expression could not be executed
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Failure"}
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Failure"}
+        "503":
+          description: The query timed out or was aborted
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Failure"}
+components:
+  schemas:
+    Sample:
+      description: >-
+        A [timestamp, value] pair. The timestamp is Unix seconds as a JSON number;
+        the value is a string such as "0.25", "NaN" or "+Inf". The pair is a list
+        whose items are numbers or text; the position of each kind is not checked.
+      type: array
+      minItems: 2
+      maxItems: 2
+      items:
+        type: [integer, number, string]
+    Labels:
+      description: Label names and values of one series
+      type: object
+      additionalProperties: {type: string}
+    InstantSeries:
+      type: object
+      required: [metric]
+      properties:
+        metric: {$ref: "#/components/schemas/Labels"}
+        value: {$ref: "#/components/schemas/Sample"}
+        values:
+          type: array
+          items: {$ref: "#/components/schemas/Sample"}
+    RangeSeries:
+      type: object
+      required: [metric, values]
+      properties:
+        metric: {$ref: "#/components/schemas/Labels"}
+        values:
+          type: array
+          maxItems: 11000
+          items: {$ref: "#/components/schemas/Sample"}
+    QueryData:
+      type: object
+      required: [resultType, result]
+      properties:
+        resultType: {type: string, enum: [vector, matrix, scalar, string]}
+        result:
+          description: A list of series for vector and matrix, one sample for scalar and string
+          anyOf:
+            - type: array
+              items: {$ref: "#/components/schemas/InstantSeries"}
+            - {$ref: "#/components/schemas/Sample"}
+    RangeData:
+      type: object
+      required: [resultType, result]
+      properties:
+        resultType: {type: string, enum: [matrix]}
+        result:
+          type: array
+          items: {$ref: "#/components/schemas/RangeSeries"}
+    Messages:
+      type: array
+      items: {type: string}
+    QuerySuccess:
+      type: object
+      required: [status, data]
+      properties:
+        status: {type: string, enum: [success]}
+        data: {$ref: "#/components/schemas/QueryData"}
+        warnings: {$ref: "#/components/schemas/Messages"}
+        infos: {$ref: "#/components/schemas/Messages"}
+    RangeSuccess:
+      type: object
+      required: [status, data]
+      properties:
+        status: {type: string, enum: [success]}
+        data: {$ref: "#/components/schemas/RangeData"}
+        warnings: {$ref: "#/components/schemas/Messages"}
+        infos: {$ref: "#/components/schemas/Messages"}
+    Failure:
+      type: object
+      required: [status, errorType, error]
+      properties:
+        status: {type: string, enum: [error]}
+        errorType: {type: string}
+        error: {type: string}
+        warnings: {$ref: "#/components/schemas/Messages"}
+        infos: {$ref: "#/components/schemas/Messages"}

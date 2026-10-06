@@ -1,0 +1,1 @@
+:calc { return instant("2026-09-28T14:30:00Z").hour; } > hour

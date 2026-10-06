@@ -1,0 +1,13 @@
+:workspace policy mode:manual
+// ---
+sh run cmd:"printf 3" > replicas
+:calc { return 250; } > perReplicaRps
+:calc {
+  return int(text($replicas.stdout)) * $perReplicaRps;
+} > capacityRps
+:calc { return $capacityRps - 600; } > headroomRps
+:calc { return $headroomRps > 0; } > healthy
+// ---
+:name unbind "healthy"
+// ---
+:read $id1004

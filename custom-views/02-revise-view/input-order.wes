@@ -1,0 +1,3 @@
+:calc pure {
+  return $serviceData.services.map(service => service.name);
+} > inputOrder

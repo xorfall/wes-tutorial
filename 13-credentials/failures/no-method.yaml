@@ -1,0 +1,13 @@
+# The orders contract without an authentication choice for listRefunds.
+version: 1
+package: orders-no-method
+targets:
+  local: {kind: local}
+environments:
+  ops:
+    imports:
+      orders:
+        source: {kind: spec, file: ../../12-api-contracts/orders.json}
+        bind:
+          target: local
+          endpoint: http://127.0.0.1:8770

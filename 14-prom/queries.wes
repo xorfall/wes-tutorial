@@ -1,0 +1,18 @@
+:calc pure {
+  return {
+    rate: {
+      query: "sum(rate(wes_demo_requests_total[10s]))",
+      plot: {id: "rate", title: "Request rate", unit: "req/s"},
+    },
+    errors: {
+      query: "100 * sum(rate(wes_demo_requests_total{status=\"503\"}[10s]))"
+        + " / clamp_min(sum(rate(wes_demo_requests_total[10s])), 0.001)",
+      plot: {id: "errors", title: "HTTP 503 share", unit: "%"},
+    },
+    latency: {
+      query: "1000 * histogram_quantile(0.95, sum by (le) ("
+        + "rate(wes_demo_request_duration_seconds_bucket[10s])))",
+      plot: {id: "latency", title: "p95 latency", unit: "ms"},
+    },
+  };
+} > queries

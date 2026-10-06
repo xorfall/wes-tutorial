@@ -1,0 +1,13 @@
+:package load path:"../request-lines.types.yaml"
+:calc {
+  return "# client method path status durationMs\n"
+    + "10.0.0.5 GET /orders 200 120\n"
+    + "10.0.0.7 POST /checkout 503 1250\n"
+    + "10.0.0.5 GET /orders/17 404 40\n"
+    + "10.0.0.9 POST /checkout 200 310\n"
+    + "10.0.0.7 GET /orders 200 105\n"
+    + "10.0.0.9 POST /checkout 500 990\n";
+} > accessLog
+:calc {
+  return iter.checked(iter.lines($accessLog), "RequestLine").count();
+} > checkedLines

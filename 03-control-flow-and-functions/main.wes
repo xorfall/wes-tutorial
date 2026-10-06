@@ -1,0 +1,116 @@
+// Request samples used throughout the chapter.
+:calc {
+  return [
+    { route: "/orders",      status: 200, durationMs: 120  },
+    { route: "/orders",      status: 201, durationMs: 95   },
+    { route: "/orders/{id}", status: 404, durationMs: 40   },
+    { route: "/checkout",    status: 503, durationMs: 1250 },
+    { route: "/checkout",    status: 200, durationMs: 310  },
+    { route: "/orders/{id}", status: 200, durationMs: 88   },
+    { route: "/checkout",    status: 500, durationMs: 990  },
+    { route: "/orders",      status: 200, durationMs: 105  },
+  ];
+} > samples
+// Step 1: Variables and for...of
+:calc {
+  const thresholdMs = 300;
+  let slow = 0;
+  for (const sample of $samples) {
+    if (sample.durationMs > thresholdMs) {
+      slow = slow + 1;
+    }
+  }
+  return slow;
+} > slowCount
+// Step 2: while
+:calc {
+  let delayMs = 100;
+  let totalMs = 0;
+  let attempts = 0;
+  while (totalMs + delayMs <= 5000) {
+    totalMs = totalMs + delayMs;
+    attempts = attempts + 1;
+    delayMs = delayMs * 2;
+  }
+  return { attempts: attempts, totalMs: totalMs };
+} > backoff
+// Step 3: Functions and if / else if / else
+:calc {
+  function statusClass(status) {
+    if (status >= 500) {
+      return "5xx";
+    } else if (status >= 400) {
+      return "4xx";
+    } else if (status >= 300) {
+      return "3xx";
+    } else {
+      return "2xx";
+    }
+  }
+  return $samples.map(sample => statusClass(sample.status));
+} > classes
+// Step 4: break and continue
+:calc {
+  let firstFailure = none;
+  for (const sample of $samples) {
+    if (sample.status < 500) {
+      continue;
+    }
+    firstFailure = some(sample.route);
+    break;
+  }
+  return firstFailure;
+} > firstFailure
+// Step 5: map, filter and reduce
+:calc {
+  const larger = (a, b) => {
+    if (a > b) {
+      return a;
+    }
+    return b;
+  };
+  const durations = $samples.map(sample => sample.durationMs);
+  const totalMs = durations.reduce((sum, d) => sum + d, 0);
+  return {
+    failures: length($samples.filter(sample => sample.status >= 500)),
+    meanMs:   roundDiv(totalMs, length(durations), 1),
+    maxMs:    durations.reduce(larger, 0),
+  };
+} > latency
+// Step 6: Sorting
+:calc {
+  const durations = $samples
+    .map(sample => sample.durationMs)
+    .sortBy(d => d);
+  const rank = div(95 * length(durations) + 99, 100);
+  return durations[rank - 1];
+} > p95Ms
+:calc {
+  return $samples
+    .sortBy(sample => 0 - sample.durationMs)
+    .slice(0, 3);
+} > slowest
+// Step 7: Closures
+:calc {
+  const routes = ["/orders", "/orders/{id}", "/checkout"];
+  return routes.map(route => {
+    const hits = $samples.filter(sample => sample.route == route);
+    return {
+      route:    route,
+      requests: length(hits),
+      failures: length(hits.filter(sample => sample.status >= 500)),
+    };
+  });
+} > byRoute
+// Step 8: range
+:calc { return range(1, 4).map(level => level * 250); } > escalationMs
+// Step 9: Recursion
+:calc {
+  function delayFor(attempt) {
+    if (attempt == 0) {
+      return 100;
+    }
+    return 2 * delayFor(attempt - 1);
+  }
+  return delayFor(5);
+} > sixthDelay

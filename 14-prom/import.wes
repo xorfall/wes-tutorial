@@ -1,0 +1,4 @@
+:import plan spec file:$cfg.prom.file endpoint:$cfg.prom.url > promPlan
+:import apply $promPlan
+:import plan spec file:$cfg.demo.file endpoint:$cfg.demo.url > demoPlan
+:import apply $demoPlan

@@ -1,0 +1,5 @@
+:sandbox {
+  :calc { return 900; } > loadRps
+  :calc { return 300; } > perReplicaRps
+  :calc { return div($loadRps + $perReplicaRps - 1, $perReplicaRps); } > replicas
+} > whatIf

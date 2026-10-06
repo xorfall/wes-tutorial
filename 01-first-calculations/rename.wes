@@ -1,0 +1,4 @@
+:calc { return 1250; } > requests
+:calc { return $requests * 2; } > projected
+:calc { return 1400; } > requests
+:calc { return $requests * 2; } > projectedNow

@@ -1,0 +1,7 @@
+Build a read-only ServiceBoard for $serviceData in the Wes design language.
+Show service, status, requests per second and p95 latency in milliseconds.
+Keep the input order. Show an empty message and report duplicate service names.
+Read the current View authoring guidance through Wes MCP before coding.
+Write the source in view-work/service-board, build and check the package,
+and return view-work/service-board.wes-view.json with the test results.
+Keep this first version static. Leave workspace installation to me.

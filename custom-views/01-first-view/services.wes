@@ -1,0 +1,10 @@
+:calc pure {
+  return {
+    title: "Service monitor",
+    services: [
+      {name: "orders-api", status: "ok", rps: 120, p95Ms: 85},
+      {name: "billing-worker", status: "degraded", rps: 40, p95Ms: 240},
+      {name: "gateway", status: "down", rps: 0, p95Ms: 850}
+    ]
+  };
+} > serviceData

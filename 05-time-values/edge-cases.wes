@@ -1,0 +1,38 @@
+:calc { return instant("2026-09-28T24:00:00Z"); } > endOfDay
+:calc { return instant("2026-09-28T14:30:00.123456789Z"); } > nanoseconds
+:calc {
+  return instant("2026-09-28T17:30:00+03:00")
+    == instant("2026-09-28T14:30:00Z");
+} > sameMoment
+:calc {
+  return [duration("P1D"), duration("-PT5M"), duration("PT90S")];
+} > normalised
+:calc {
+  const at = instant("2026-09-28T14:30:00Z");
+  return interval(at, at);
+} > emptyInterval
+:calc { return toEpochSeconds(instant("2026-09-28T14:30:00Z")); } > epochDecimal
+:calc {
+  return toEpochNanos(fromEpochNanos(1790605800123456789));
+} > roundTrip
+:calc { return toSeconds(duration("PT1M30S")); } > secondsOf
+:calc { return durationSeconds(3 * 300); } > builtDuration
+:calc { return duration("PT10M") / duration("PT2M30S"); } > checks
+:calc {
+  return roundDiv(
+    toNanos(duration("PT1M5S")),
+    toNanos(duration("PT10M")),
+    3
+  );
+} > errorFraction
+:calc {
+  const total = duration("PT10S");
+  return durationNanos(roundDiv(toNanos(total), 3, 0));
+} > meanLatency
+:calc {
+  return instant("2026-09-28T14:30:00Z") - instant("2026-09-28T14:31:05Z");
+} > negativeDuration
+:calc {
+  return utcParts(instant("2026-09-28T14:00:00Z")).hour
+    == utcParts(instant("2026-09-28T14:59:59Z")).hour;
+} > sameHour

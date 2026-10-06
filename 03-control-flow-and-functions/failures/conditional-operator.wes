@@ -1,0 +1,1 @@
+:calc { return [200, 503].map(s => s >= 500 ? "fail" : "ok"); } > labels

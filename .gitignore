@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.DS_Store
+# Files the chapters generate when they are run.
+12-api-contracts/orders.json
+09-environments-and-targets/lab/.state/
+view-work/

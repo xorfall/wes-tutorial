@@ -1,0 +1,12 @@
+:calc pure {
+  return {
+    view: "timeline-group",
+    title: "Orders API · Prometheus",
+    range: $window,
+  };
+} > groupData
+:view create TimelineGroup input:$groupData > board
+:view connect $ratePanel to:$board
+:view connect $errorsPanel to:$board
+:view connect $latencyPanel to:$board
+:inspect $board > boardInfo

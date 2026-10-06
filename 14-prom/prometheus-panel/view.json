@@ -1,0 +1,65 @@
+{
+  "name": "PrometheusPanel",
+  "id": "prometheus-panel",
+  "summary": "Show the latest valid sample beside the finite trend of a Timeline.",
+  "renderer": "View.tsx",
+  "input": "Timeline",
+  "outputs": {},
+  "interaction": null,
+  "layout": {
+    "preview": {
+      "min": {
+        "columns": 32,
+        "rows": 9
+      },
+      "preferred": {
+        "columns": 56,
+        "rows": 11
+      },
+      "max": {
+        "columns": 160,
+        "rows": 16
+      },
+      "placement": {
+        "width": "fill",
+        "align": "start"
+      }
+    },
+    "expanded": {
+      "min": {
+        "columns": 32,
+        "rows": 11
+      },
+      "preferred": {
+        "columns": 72,
+        "rows": 15
+      },
+      "max": {
+        "columns": 200,
+        "rows": 24
+      },
+      "placement": {
+        "width": "fill",
+        "align": "start"
+      }
+    },
+    "window": {
+      "min": {
+        "columns": 40,
+        "rows": 14
+      },
+      "preferred": {
+        "columns": 100,
+        "rows": 26
+      },
+      "max": {
+        "columns": 320,
+        "rows": 60
+      },
+      "placement": {
+        "width": "fill",
+        "align": "start"
+      }
+    }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "name": "ServiceBoardPriority",
+  "id": "service-board-priority",
+  "summary": "Display synthetic service health in severity order.",
+  "renderer": "View.tsx",
+  "input": "ServiceBoardInput",
+  "outputs": {},
+  "interaction": null
+}

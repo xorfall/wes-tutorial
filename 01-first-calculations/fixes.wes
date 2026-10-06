@@ -1,0 +1,13 @@
+// Correction for step 8: define the missing result first.
+:calc { return 1250; } > requests
+:calc { return 12; } > retries
+:calc { return $requests + $retries; } > attempts
+:calc {
+  // Requests that returned a 5xx status in the last five minutes.
+  return 30;
+} > errors
+:calc { return $errors == 30; } > equal
+:calc { return $errors < $requests; } > less
+:calc { return $errors <= 30; } > lessOrEqual
+:calc { return 0.1 + 0.2; } > exact
+:calc { return "http://127.0.0.1:8080/health"; } > healthUrl

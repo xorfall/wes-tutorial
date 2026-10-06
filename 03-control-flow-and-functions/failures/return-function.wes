@@ -1,0 +1,1 @@
+:calc { return status => status >= 500; } > isFailure

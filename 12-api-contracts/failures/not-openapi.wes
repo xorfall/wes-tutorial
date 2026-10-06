@@ -1,0 +1,1 @@
+:describe file:"12-api-contracts/README.md" provider:orders > fromProse

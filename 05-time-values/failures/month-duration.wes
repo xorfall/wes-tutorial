@@ -1,0 +1,1 @@
+:calc { return duration("P1M"); } > retention

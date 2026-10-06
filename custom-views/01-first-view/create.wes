@@ -1,0 +1,1 @@
+:view create ServiceBoard input:$serviceData > board

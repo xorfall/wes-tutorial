@@ -1,0 +1,2 @@
+:calc { return { service: "orders-api", errorRate: 2.4 }; } > summary
+:calc { return $summary.errorRate > 2; } > alert

@@ -1,0 +1,58 @@
+// Step 1: The workspace result
+:calc { return 750; } > capacityRps
+// ---
+// Step 2: Define a sandbox
+:sandbox {
+  :calc { return 6; } > replicas
+  :calc { return 300; } > perReplicaRps
+  :calc { return $replicas * $perReplicaRps; } > capacityRps
+  :calc { return $capacityRps - 900; } > headroomRps
+} > whatIf
+// ---
+:read $whatIf
+// ---
+// Step 3: Read one member
+:read $whatIf.headroomRps
+// ---
+:inspect $whatIf
+// ---
+// Step 4: Change the program
+:sandbox {
+  :calc { return 4; } > replicas
+  :calc { return 300; } > perReplicaRps
+  :calc { return $replicas * $perReplicaRps; } > capacityRps
+  :calc { return $capacityRps - 900; } > headroomRps
+} > whatIf
+// ---
+:read $whatIf
+// ---
+// Step 5: Isolation
+:sandbox {
+  :calc { return $capacityRps * 2; } > doubled
+} > fromWorkspace
+// ---
+:calc { return $whatIf.capacityRps; } > copied
+// ---
+// Step 6: Failures inside a sandbox
+:sandbox {
+  :calc { return 900 / 0; } > perReplica
+  :calc { return 4 * 300; } > capacityRps
+} > faulty
+// ---
+:read $faulty
+// ---
+// Step 7: Stop and restart
+:cancel $whatIf
+// ---
+:read $whatIf
+// ---
+:refresh $whatIf
+// ---
+:read $whatIf
+// ---
+// Step 8: List and remove sandboxes
+:list sandboxes
+// ---
+:remove $faulty scope:downstream
+// ---
+:list sandboxes

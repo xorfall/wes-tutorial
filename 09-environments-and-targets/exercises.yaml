@@ -1,0 +1,4 @@
+# Added to the lab package for exercise 1.
+      logs:
+        source: {kind: builtin, name: sh}
+        bind: {target: orders_api, timeout_ms: 10000}

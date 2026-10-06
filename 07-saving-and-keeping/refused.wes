@@ -1,0 +1,4 @@
+:workspace plan delete > current
+:calc { return 1; } > late
+:workspace delete $current
+:list workspaces

@@ -1,0 +1,33 @@
+:calc pure {
+  const rows = $stats;
+  const optionTime = value => {
+    if (isSome(value)) {
+      return some(fromEpochNanos(unwrapOr(value, 0)));
+    }
+    return none;
+  };
+  const sample = () => {
+    if (length(rows) == 0) { return none; }
+    const row = rows[length(rows) - 1];
+    return some({
+      sequence: row.sequence,
+      sampledAt: optionTime(row.timestamp_ns),
+      receivedAt: fromEpochNanos(row.received_at_ns),
+      cpuPercent: row.cpu_percent,
+      cpuUnavailable: row.cpu_unavailable,
+      onlineCpus: row.online_cpus,
+      memoryWorkingSetBytes: row.memory_working_set_bytes,
+      memoryLimitBytes: row.memory_limit_bytes,
+      memoryPercent: row.memory_percent,
+      memoryUnavailable: row.memory_unavailable,
+      memoryCacheSource: row.memory_cache_source,
+    });
+  };
+  return {
+    view: "container-resources",
+    container: $containerId,
+    label: "orders-api",
+    sample: sample(),
+  };
+} > resources
+:view create ContainerResources input:$resources > resourcePanel

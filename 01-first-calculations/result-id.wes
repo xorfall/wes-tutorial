@@ -1,0 +1,2 @@
+:calc { return 1200 + 50; }
+:calc { return $id1000 - 30; } > succeeded

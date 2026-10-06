@@ -1,0 +1,2 @@
+:import spec file:"12-api-contracts/orders.json" endpoint:"http://127.0.0.1:8770" as:orders
+orders listOrders limit:51 > tooMany

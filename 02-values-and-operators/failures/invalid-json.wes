@@ -1,0 +1,1 @@
+:calc { return parseJson("{status: ok}"); } > health

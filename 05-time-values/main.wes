@@ -1,0 +1,91 @@
+// Checkout requests around a deployment; one line arrived out of order.
+:calc {
+  return "2026-09-28T14:26:10Z GET /checkout 200 180\n"
+    + "2026-09-28T14:28:45Z GET /checkout 200 210\n"
+    + "2026-09-28T14:31:05Z POST /checkout 503 1250\n"
+    + "2026-09-28T14:29:30Z GET /checkout 200 190\n"
+    + "2026-09-28T14:33:40Z POST /checkout 500 990\n"
+    + "2026-09-28T14:36:15Z GET /checkout 200 240\n"
+    + "2026-09-28T14:41:50Z GET /checkout 200 205\n";
+} > checkoutLog
+// Step 1: Instants
+:calc { return instant("2026-09-28T17:30:00+03:00"); } > deployedAt
+// Step 2: Durations
+:calc { return duration("PT10M"); } > watchFor
+// Step 3: Arithmetic and comparison
+:calc { return $deployedAt + $watchFor; } > watchEnd
+:calc {
+  return instant("2026-09-28T14:31:05Z") - $deployedAt;
+} > firstErrorIn
+:calc { return $firstErrorIn < duration("PT5M"); } > fastFailure
+:calc { return $watchFor / 4; } > checkEvery
+// Step 4: Intervals
+:calc { return interval($deployedAt, $watchEnd); } > watchWindow
+:calc { return around($deployedAt, duration("PT5M")); } > deployWindow
+:calc { return $watchWindow.end - $watchWindow.start; } > watchLength
+// Step 5: Numbers and calendar fields
+:calc {
+  return {
+    seconds:     int(toEpochSeconds($deployedAt)),
+    fromMillis:  fromEpochMillis(1790605865000),
+    errorAfterS: int(toSeconds($firstErrorIn)),
+    deployHour:  utcParts($deployedAt).hour,
+  };
+} > timeNumbers
+// Step 6: Timestamps from logs
+:calc {
+  return iter.captures(
+      $checkoutLog,
+      "(?m)^(\\S+) \\S+ \\S+ ([0-9]{3}) ([0-9]+)$"
+    )
+    .map(found => {
+      const groups = found.groups.map(group => unwrapOr(group, ""));
+      return {
+        at:         instant(groups[0]),
+        status:     int(groups[1]),
+        durationMs: int(groups[2]),
+      };
+    })
+    .collect()
+    .sortBy(request => request.at);
+} > requests
+:calc {
+  return $requests
+    .filter(request => request.at >= $watchWindow.start
+      && request.at < $watchWindow.end
+      && request.status >= 500)
+    .map(request => request.at - $deployedAt);
+} > errorsAfter
+// Step 7: Timeline
+:calc {
+  const span = interval(
+    instant("2026-09-28T14:25:00Z"),
+    instant("2026-09-28T14:45:00Z")
+  );
+  return {
+    view:        "timeline",
+    id:          "checkout",
+    title:       "Checkout latency",
+    range:       span,
+    coverage:    span,
+    omitted:     0,
+    sourceError: "",
+    series: [{
+      id:      "latency",
+      label:   "latency",
+      unit:    "ms",
+      samples: $requests.map(request => ({
+        id:    text(request.at),
+        at:    request.at,
+        value: decimal(request.durationMs),
+        gap:   false,
+      })),
+    }],
+    events: [{
+      id:     "deploy",
+      at:     $deployedAt,
+      label:  "deploy v2.4.1",
+      detail: "orders-api rollout",
+    }],
+  };
+} > timeline

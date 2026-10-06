@@ -1,0 +1,9 @@
+:calc {
+  let seen = 0;
+  return iter.lines("GET /orders 200\nGET /checkout 503")
+    .map(line => {
+      seen = seen + 1;
+      return line;
+    })
+    .count();
+} > counted

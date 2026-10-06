@@ -1,0 +1,7 @@
+prom query query:"vector(time())" > clock
+:calc {
+  const end = fromEpochSeconds(
+    decimal($clock.body.data.result[0].value[1])
+  );
+  return interval(end - duration("PT1M"), end);
+} > window

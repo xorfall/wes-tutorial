@@ -1,0 +1,22 @@
+:calc { return 1200 + 50; }
+:calc { return 1250; } > requests
+:calc { return 30; } > errors
+:calc { return $requests - $errors; } > succeeded
+:calc { return $errors * 100 / $requests; } > errorRate
+:calc {
+  return {
+    service:   "orders-api",
+    window:    "5m",
+    requests:  $requests,
+    errors:    $errors,
+    errorRate: $errorRate,
+  };
+} > summary
+:calc { return $summary.errorRate > 2.0; } > alert
+:calc {
+  return [
+    { service: "orders-api",     requests: 1250, errors: 30 },
+    { service: "billing-worker", requests: 480,  errors: 2  },
+    { service: "auth-gateway",   requests: 3100, errors: 0  },
+  ];
+} > services

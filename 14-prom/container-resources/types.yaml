@@ -1,0 +1,29 @@
+version: 1
+types:
+  ContainerResourcesKind: {base: Text, enum: [container-resources]}
+  ContainerResourcesId: {base: Text, minLength: 64, maxLength: 64}
+  ContainerResourcesText: {base: Text, maxLength: 2048}
+  ContainerResourcesReason: {base: Text, minLength: 1, maxLength: 2048}
+  ContainerResourcesCount: {base: Int, min: 0}
+  ContainerResourcesPercent: {base: Decimal, min: 0}
+  ContainerResourcesSample:
+    base: Record
+    fields:
+      sequence: ContainerResourcesCount
+      sampledAt: 'Option<Instant>'
+      receivedAt: Instant
+      cpuPercent: 'Option<ContainerResourcesPercent>'
+      cpuUnavailable: 'Option<ContainerResourcesReason>'
+      onlineCpus: 'Option<ContainerResourcesCount>'
+      memoryWorkingSetBytes: 'Option<ContainerResourcesCount>'
+      memoryLimitBytes: 'Option<ContainerResourcesCount>'
+      memoryPercent: 'Option<ContainerResourcesPercent>'
+      memoryUnavailable: 'Option<ContainerResourcesReason>'
+      memoryCacheSource: 'Option<ContainerResourcesText>'
+  ContainerResources:
+    base: Record
+    fields:
+      view: ContainerResourcesKind
+      container: ContainerResourcesId
+      label: ContainerResourcesText
+      sample: 'Option<ContainerResourcesSample>'

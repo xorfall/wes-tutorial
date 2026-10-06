@@ -1,0 +1,13 @@
+:calc { return 1250; } > requests
+:calc { return 30; } > errors
+:calc { return $requests - $errors; } > succeeded
+:calc {
+  return [
+    { service: "orders-api",     requests: 1250, errors: 30 },
+    { service: "billing-worker", requests: 480,  errors: 2  },
+    { service: "auth-gateway",   requests: 3100, errors: 0  },
+  ];
+} > services
+:calc { return $succeeded * 100 / $requests; } > availability
+:calc { return $availability >= 99.0; } > withinSlo
+:calc { return $services[1].errors; } > billingErrors

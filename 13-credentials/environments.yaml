@@ -1,0 +1,38 @@
+# Environment package for chapter 13: the orders contract of chapter 12 with credentials.
+# The values are never written here; secretRefs name them, and they are supplied at run time.
+version: 1
+package: orders-credentials
+targets:
+  local: {kind: local}
+environments:
+  ops:
+    secretSlots:
+      token: {required: true}
+    secretRefs:
+      token: tutorial/orders/ops-token
+    imports:
+      orders:
+        source: {kind: spec, file: ../12-api-contracts/orders.json}
+        bind:
+          target: local
+          endpoint: http://127.0.0.1:8770
+          auth: {listRefunds: [opsToken]}
+          credentials:
+            opsToken: {secret: token}
+  ops-basic:
+    secretSlots:
+      user: {required: true}
+      password: {required: true}
+    secretRefs:
+      user: tutorial/orders/ops-user
+      password: tutorial/orders/ops-password
+    imports:
+      orders:
+        source: {kind: spec, file: ../12-api-contracts/orders.json}
+        bind:
+          target: local
+          endpoint: http://127.0.0.1:8770
+          auth: {listRefunds: [opsBasic]}
+          credentials:
+            opsBasic.username: {secret: user}
+            opsBasic.password: {secret: password}

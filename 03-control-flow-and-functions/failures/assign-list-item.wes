@@ -1,0 +1,5 @@
+:calc {
+  const delays = [100, 200];
+  delays[0] = 50;
+  return delays;
+} > delays

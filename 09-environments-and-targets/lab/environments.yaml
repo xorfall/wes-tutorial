@@ -1,0 +1,36 @@
+# Environment package for the tutorial lab. Key paths are relative to this file.
+version: 1
+package: tutorial-lab
+targets:
+  local:
+    kind: local
+  orders_api:
+    kind: docker
+    socket: /var/run/docker.sock
+    compose: {project: wes-tutorial-09, service: orders-api}
+    inherit: container
+    shell: /bin/sh
+    cwd: /srv/orders-api
+  edge:
+    kind: ssh
+    client: /usr/bin/ssh
+    host: 127.0.0.1
+    port: 2222
+    user: ops
+    identity_file: .state/id_ed25519
+    known_hosts: .state/known_hosts
+    shell: posix
+    inherit: remote
+    cwd: /home/ops
+environments:
+  lab:
+    imports:
+      local:
+        source: {kind: builtin, name: sh}
+        bind: {target: local, timeout_ms: 10000}
+      app:
+        source: {kind: builtin, name: sh}
+        bind: {target: orders_api, timeout_ms: 10000}
+      edge:
+        source: {kind: builtin, name: sh}
+        bind: {target: edge, timeout_ms: 10000}

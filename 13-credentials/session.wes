@@ -1,0 +1,16 @@
+// Step 2: Plan, apply and select the environment
+:env plan file:"13-credentials/environments.yaml" > proposed
+// ---
+:env apply $proposed
+// ---
+:env use "ops"
+// ---
+// Step 3: A call without credentials
+orders listRefunds limit:5 > refunds
+// ---
+// Step 4: Supply the token in /env, then call again
+orders listRefunds limit:5 > refunds
+// ---
+:calc {
+  return $refunds.body.map(refund => refund.amountCents).reduce((sum, cents) => sum + cents, 0);
+} > refundedCents

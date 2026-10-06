@@ -1,0 +1,4 @@
+orders listRefunds limit:5 > refunds
+:calc {
+  return $refunds.body.map(refund => refund.amountCents).reduce((sum, cents) => sum + cents, 0);
+} > refundedCents

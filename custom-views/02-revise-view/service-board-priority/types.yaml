@@ -1,0 +1,30 @@
+types:
+  ServiceBoardTitle:
+    base: Text
+    minLength: 1
+    maxLength: 128
+  ServiceName:
+    base: Text
+    minLength: 1
+    maxLength: 64
+  ServiceStatus:
+    base: Text
+    enum: [ok, degraded, down]
+  ServiceCount:
+    base: Int
+    min: 0
+  ServiceRow:
+    base: Record
+    fields:
+      name: ServiceName
+      status: ServiceStatus
+      rps: ServiceCount
+      p95Ms: ServiceCount
+  ServiceRows:
+    base: List<ServiceRow>
+    maxItems: 16
+  ServiceBoardInput:
+    base: Record
+    fields:
+      title: ServiceBoardTitle
+      services: ServiceRows

@@ -1,0 +1,6 @@
+:calc {
+  return interval(
+    instant("2026-09-28T14:40:00Z"),
+    instant("2026-09-28T14:30:00Z")
+  );
+} > watchWindow

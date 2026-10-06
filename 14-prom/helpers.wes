@@ -1,0 +1,45 @@
+:package load path:"14-prom/types.yaml"
+:def PromRange(query: Text, window: Interval) -> HttpResponse as :calc {
+  return call("prom", ["queryRange"], {
+    query: query,
+    start: text(toEpochSeconds(window.start)),
+    end: text(toEpochSeconds(window.end)),
+    step: "1s",
+  });
+}
+:def Draw(input: Record, span: Interval, p: Record) -> Timeline as :calc pure {
+  const body = input;
+  check("HttpSuccess", body.status);
+  check("MatrixResult", body.data.resultType);
+  check("SingleOrEmpty", length(body.data.result));
+  const series = body.data.result.map(row => {
+    const samples = row.values.map(pair => {
+      check("PairLength", length(pair));
+      const at = fromEpochSeconds(decimal(pair[0]));
+      const encoded = check("Text", pair[1]);
+      const gap = encoded == "NaN";
+      let value = 0;
+      if (!gap) {
+        value = decimal(encoded);
+      }
+      return {id: text(toEpochNanos(at)), at: at, value: value, gap: gap};
+    }).filter(point => point.at >= span.start && point.at < span.end);
+    return {
+      id: p.id, label: p.title, unit: p.unit, samples: samples,
+    };
+  });
+  return {
+    view: "timeline", id: p.id, title: p.title,
+    range: span, coverage: span, omitted: 0, sourceError: "",
+    series: series, events: [],
+  };
+}
+:def Latest(input: Timeline, plot: Record) -> Metric as :calc pure {
+  check("SingleSeries", length(input.series));
+  const samples = input.series[0].samples.filter(point => !point.gap);
+  check("HasSamples", length(samples) > 0);
+  return {
+    view: "metric", label: plot.title, unit: plot.unit,
+    value: samples[length(samples) - 1].value,
+  };
+}

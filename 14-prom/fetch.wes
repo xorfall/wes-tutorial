@@ -1,0 +1,3 @@
+PromRange query:$queries.rate.query window:$window > rateRaw
+PromRange query:$queries.errors.query window:$window > errorsRaw
+PromRange query:$queries.latency.query window:$window > p95Raw

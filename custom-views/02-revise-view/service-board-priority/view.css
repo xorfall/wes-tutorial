@@ -1,0 +1,48 @@
+.service-board {
+  padding: var(--space-lg);
+}
+
+.service-board h2 {
+  margin: 0 0 var(--space-md);
+  overflow-wrap: anywhere;
+}
+
+.service-board p {
+  margin: 0;
+}
+
+.service-board-scroll {
+  overflow-x: auto;
+}
+
+.service-board table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.service-board caption {
+  text-align: left;
+  margin-bottom: var(--space-md);
+}
+
+.service-board th,
+.service-board td {
+  padding: var(--space-md);
+  border-bottom: var(--stroke-thin) solid var(--line);
+  text-align: left;
+}
+
+.service-board td:nth-child(n + 3) {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.service-board th[scope="row"] {
+  overflow-wrap: anywhere;
+}
+
+.service-status {
+  display: inline-block;
+  padding: var(--space-xs) var(--space-sm);
+}

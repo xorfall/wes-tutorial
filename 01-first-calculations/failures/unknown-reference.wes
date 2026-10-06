@@ -1,0 +1,2 @@
+:calc { return 1250; } > requests
+:calc { return $requests + $retries; } > attempts

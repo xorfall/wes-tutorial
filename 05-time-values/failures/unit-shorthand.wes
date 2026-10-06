@@ -1,0 +1,1 @@
+:calc { return duration("5m"); } > timeout

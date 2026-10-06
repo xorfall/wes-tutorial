@@ -1,0 +1,12 @@
+:calc pure {
+  return {
+    prom: {
+      file: "14-prom/lab/.state/p.json",
+      url: "http://127.0.0.1:19091",
+    },
+    demo: {
+      file: "14-prom/lab/.state/a.json",
+      url: "http://127.0.0.1:18770",
+    },
+  };
+} > cfg

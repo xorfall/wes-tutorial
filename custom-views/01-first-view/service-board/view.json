@@ -1,0 +1,9 @@
+{
+  "name": "ServiceBoard",
+  "id": "service-board",
+  "summary": "Display a bounded snapshot of synthetic service health.",
+  "renderer": "View.tsx",
+  "input": "ServiceBoardInput",
+  "outputs": {},
+  "interaction": null
+}

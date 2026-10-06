@@ -1,0 +1,85 @@
+# Contract of the synthetic orders-api control endpoints used by chapter 14.
+# The lab publishes the service on 127.0.0.1:18770.
+openapi: 3.1.0
+info:
+  title: Orders API (chapter 14 lab)
+  version: "1.0.0"
+servers:
+  - url: http://127.0.0.1:18770
+paths:
+  /health:
+    get:
+      operationId: health
+      summary: Report that the service is running and its current mode
+      security: []
+      responses:
+        "200":
+          description: Service health
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status, mode]
+                properties:
+                  status: {type: string, enum: [ok]}
+                  mode: {$ref: "#/components/schemas/Mode"}
+  /profile:
+    get:
+      operationId: getProfile
+      summary: Read the current behaviour of GET /work
+      security: []
+      responses:
+        "200":
+          description: Current profile
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Profile"}
+    post:
+      operationId: setProfile
+      summary: Change the behaviour of GET /work for all later requests
+      description: >-
+        Modifies service state. degraded adds latency and answers every fourth
+        request with 503; healthy restores fast successful answers. The body must
+        contain only the mode field.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/Profile"}
+      responses:
+        "200":
+          description: The profile now in effect
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Profile"}
+        "400":
+          description: The body is not a profile
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Problem"}
+        "413":
+          description: The body exceeds 1024 bytes
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Problem"}
+        "415":
+          description: The body is not JSON
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Problem"}
+components:
+  schemas:
+    Mode:
+      type: string
+      enum: [healthy, degraded]
+    Profile:
+      type: object
+      required: [mode]
+      properties:
+        mode: {$ref: "#/components/schemas/Mode"}
+    Problem:
+      type: object
+      required: [error]
+      properties:
+        error: {type: string}

@@ -1,0 +1,13 @@
+:calc { return 1 == 1.0; } > crossKindEquality
+:calc { return [2.50 + 1.5, 2.50 * 2.0, 1080000.0 / 100.0]; } > decimalScale
+:calc { return "B" < "a"; } > codePointOrder
+:calc { return [div(-7, 2), rem(-7, 2)]; } > negativeDivision
+:calc { return [roundDiv(1, 8, 2), roundDiv(3, 8, 2)]; } > halfEven
+:calc { return [1, "orders-api", 2.4]; } > mixedList
+:calc { return [120, 95] == [120, 95]; } > listEquality
+:calc { return 'single "quoted" text'; } > singleQuoted
+:calc { return false && div(1, 0) == 0; } > shortCircuit
+:calc { return -9223372036854775807 - 1; } > smallestInt
+:calc { return keys({ zone: "b", region: "eu-west-1" }); } > keyOrder
+:calc { return [none, some(30)]; } > optionalList
+:calc { return slice("café", 3); } > lastCharacter

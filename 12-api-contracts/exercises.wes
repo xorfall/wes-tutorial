@@ -1,0 +1,7 @@
+// Exercise 1
+orders listOrders limit:10 status:"shipped" > shipped
+:calc {
+  return $shipped.body.map(order => order.totalCents).reduce((sum, cents) => sum + cents, 0);
+} > shippedCents
+// Exercise 2
+orders getOrder id:0 > noOrder

@@ -1,0 +1,3 @@
+:calc {
+  return length(iter.lines("GET /orders 200\nGET /checkout 503"));
+} > lineCount

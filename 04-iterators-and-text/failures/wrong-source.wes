@@ -1,0 +1,1 @@
+:calc { return iter.words(503).collect(); } > words

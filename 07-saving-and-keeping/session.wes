@@ -1,0 +1,35 @@
+// Step 1: Workspaces
+:list workspaces
+// ---
+:calc { return 750; } > capacityRps
+// ---
+:calc {
+  return range(100).map(i => "request-" + text(i));
+} > requestIds
+// ---
+// Step 2: Save a snapshot
+:workspace save "capacity-0930"
+// ---
+:list workspaces
+// ---
+:calc { return 1250; } > afterScaleOut
+// ---
+:list names
+// ---
+// Step 3: Load the saved workspace
+// workspace: capacity-0930
+:list names
+// ---
+// workspace: capacity-0930
+:read $capacityRps
+// ---
+// workspace: capacity-0930
+:read $requestIds
+// ---
+// workspace: capacity-0930
+:refresh $requestIds
+// ---
+// Step 5: Deletion plans
+:workspace plan delete workspace:"capacity-0930" > plan
+// ---
+:workspace delete $plan

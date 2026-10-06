@@ -1,0 +1,7 @@
+:calc {
+  let calls = 0;
+  return [310, 120].sortBy(d => {
+    calls = calls + 1;
+    return d;
+  });
+} > sorted

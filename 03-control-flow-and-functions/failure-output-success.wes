@@ -1,0 +1,6 @@
+:calc {
+  return parseJson('{"status": "ok"}');
+} > health *> healthError
+:calc {
+  return "health check failed: " + $healthError.code;
+} > healthAlert

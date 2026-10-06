@@ -1,0 +1,41 @@
+:calc {
+  return iter.lines("GET /a 200\r\nGET /b 503\r\n").collect();
+} > windowsLines
+:calc { return iter.lines("first\n\nthird\n").collect(); } > emptyLineKept
+:calc {
+  return iter.matches("status=200 status=503", "status=([0-9]+)").collect();
+} > wholeMatches
+:calc {
+  return iter.matches("ERROR a\nerror b\nWarn c", "(?i)error").count();
+} > ignoreCase
+:calc {
+  const lines = iter.lines("a\nb\nc");
+  return [lines.count(), lines.count()];
+} > freshConsumers
+:calc { return iter.chars("café").count(); } > characters
+:calc { return iter.split("a,b,,c", ",").collect(); } > emptyFields
+:calc { return iter.regexSplit("a1b22c", "[0-9]+").collect(); } > regexParts
+:calc {
+  return iter.keys({ zone: "b", region: "eu-west-1" }).collect();
+} > fieldNames
+:calc { return ["orders-api", "billing-worker"].join(", "); } > joined
+:calc {
+  return iter.jsonLines('{"level": "info"}\nnot json').take(1).collect();
+} > stopsEarly
+:calc {
+  return iter.matches("client 10.0.0.5", "[0-9]+\\.[0-9]+").collect();
+} > literalDots
+:calc {
+  return iter.captures("retry=3 backoff=", "retry=([0-9]+) backoff=([0-9]*)")
+    .map(found => found.groups)
+    .collect();
+} > optionalGroups
+:calc {
+  return iter.captures("timeout", "(retry-)?timeout").map(found => found.groups).collect();
+} > unmatchedGroup
+:calc {
+  return iter.lines('{"level": "info"}\n\n{"level": "error"}\n')
+    .filter(line => iter.words(line).count() > 0)
+    .map(line => parseJson(line))
+    .collect();
+} > skipEmptyLines

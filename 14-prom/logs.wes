@@ -1,0 +1,10 @@
+:import docker socket:"/var/run/docker.sock" as:labDocker
+labDocker containers project:"wes-tutorial-14" > containers
+:calc {
+  const rows = $containers.rows.filter(row => {
+    return row.service == some("orders-api");
+  });
+  check("SingleSeries", length(rows));
+  return rows[0].id;
+} > containerId
+labDocker logs follow container:$containerId tail:20 > logs

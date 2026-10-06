@@ -1,0 +1,19 @@
+# Two synthetic hosts for the tutorial. Nothing is published beyond 127.0.0.1.
+name: wes-tutorial-09
+services:
+  orders-api:
+    image: alpine:3.22
+    hostname: orders-api
+    command: ["sleep", "infinity"]
+    environment:
+      SERVICE_NAME: orders-api
+      SERVICE_VERSION: "2.4.1"
+    volumes:
+      - ./orders-api:/srv/orders-api:ro
+  edge-host:
+    build: ./edge-host
+    hostname: edge-host
+    ports:
+      - "127.0.0.1:2222:22"
+    volumes:
+      - ./.state/authorized_keys:/home/ops/.ssh/authorized_keys:ro

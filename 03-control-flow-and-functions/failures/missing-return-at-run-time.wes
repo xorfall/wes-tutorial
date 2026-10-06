@@ -1,0 +1,6 @@
+:calc { return 0; } > errors
+:calc {
+  if ($errors > 0) {
+    return "page";
+  }
+} > action

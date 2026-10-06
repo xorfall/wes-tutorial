@@ -1,0 +1,2 @@
+:calc { return iter.lines("GET /orders 200\nGET /checkout 503"); } > lines
+:calc { return $lines[0]; } > firstLine

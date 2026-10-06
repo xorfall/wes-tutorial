@@ -1,0 +1,1 @@
+prom query query:"sum(" > badQuery

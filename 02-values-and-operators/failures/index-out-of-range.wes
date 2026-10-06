@@ -1,0 +1,2 @@
+:calc { return [120, 95, 310, 88]; } > latenciesMs
+:calc { return $latenciesMs[4]; } > fifth

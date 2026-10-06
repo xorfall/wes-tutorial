@@ -1,0 +1,79 @@
+# Chapter 14 lab: a synthetic orders-api, a workload that calls it and a Prometheus
+# server that scrapes it. Host ports are published on 127.0.0.1 only.
+name: wes-tutorial-14
+services:
+  orders-api:
+    image: python:3.13-alpine
+    command: ["python", "/srv/orders_api.py", "--host", "0.0.0.0", "--port", "8080"]
+    environment:
+      PYTHONDONTWRITEBYTECODE: "1"
+    volumes:
+      - ./orders-api:/srv:ro
+    read_only: true
+    ports:
+      - "127.0.0.1:${WES14_ORDERS_API_PORT:-18770}:8080"
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - >-
+          import urllib.request as u;
+          u.build_opener(u.ProxyHandler({})).open('http://127.0.0.1:8080/health', timeout=2)
+      interval: 1s
+      timeout: 3s
+      retries: 30
+    stop_grace_period: 5s
+  workload:
+    image: python:3.13-alpine
+    command: ["python", "/srv/workload.py", "--url", "http://orders-api:8080/work", "--interval", "0.1"]
+    environment:
+      PYTHONDONTWRITEBYTECODE: "1"
+    volumes:
+      - ./workload:/srv:ro
+    read_only: true
+    tmpfs:
+      - /tmp
+    depends_on:
+      orders-api:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - >-
+          import os, sys, time;
+          sys.exit(time.time() - os.path.getmtime('/tmp/workload-heartbeat') > 5)
+      interval: 1s
+      timeout: 3s
+      retries: 30
+    stop_grace_period: 5s
+  prometheus:
+    image: prom/prometheus:v3.5.0
+    command:
+      - --config.file=/etc/prometheus/prometheus.yaml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=2h
+      - --web.listen-address=:9090
+    volumes:
+      - ./prometheus.yaml:/etc/prometheus/prometheus.yaml:ro
+    ports:
+      - "127.0.0.1:${WES14_PROMETHEUS_PORT:-19091}:9090"
+    depends_on:
+      orders-api:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - wget
+        - -q
+        - -T
+        - "2"
+        - -O
+        - /dev/null
+        - http://127.0.0.1:9090/-/ready
+      interval: 1s
+      timeout: 3s
+      retries: 60
+    stop_grace_period: 5s

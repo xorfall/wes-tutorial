@@ -1,0 +1,14 @@
+# Environment package for chapter 12: the orders contract bound to the local service.
+# orders.json is the draft written by step 1, next to this file.
+version: 1
+package: orders-tutorial
+targets:
+  local: {kind: local}
+environments:
+  shop:
+    imports:
+      orders:
+        source: {kind: spec, file: orders.json}
+        bind:
+          target: local
+          endpoint: http://127.0.0.1:8770

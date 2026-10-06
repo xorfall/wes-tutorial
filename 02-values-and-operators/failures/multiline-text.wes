@@ -1,0 +1,4 @@
+:calc {
+  return "first line
+second line";
+} > message

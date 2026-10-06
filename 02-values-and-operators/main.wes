@@ -1,0 +1,88 @@
+// Step 1: Int
+:calc { return 1250 * 12 * 24 * 30; } > requests30d
+// Step 2: Decimal
+:calc { return 100.0 - 99.9; } > budgetPercent
+:calc {
+  return decimal($requests30d) * $budgetPercent / 100.0;
+} > failureBudget
+// Step 3: Division and rounding
+:calc { return roundDiv(10, 3, 2); } > perInstance
+:calc { return [roundDiv(5, 2, 0), roundDiv(7, 2, 0)]; } > halves
+// Step 4: Conversions
+:calc { return int(roundDiv($failureBudget, 1, 0)); } > failureCount
+:calc {
+  return {
+    status: int("503"),
+    load:   decimal("0.25"),
+    rate:   text(2.4),
+  };
+} > converted
+// Step 5: Integer division and remainder
+:calc { return div(503, 100); } > statusClass
+:calc { return rem(503, 100); } > statusDetail
+// Step 6: Text
+:calc {
+  return "orders-api: " + text(2.4) + "% errors";
+} > alertMessage
+:calc {
+  return {
+    length: length("orders-api"),
+    first:  "orders-api"[0],
+    prefix: slice("orders-api", 0, 6),
+    joined: join(["orders-api", "billing-worker"], ", "),
+  };
+} > textFacts
+// Step 7: Bool
+:calc {
+  return $statusClass == 5 && 2.4 > 2.0 || 310 > 300;
+} > page
+// Step 8: Records
+:calc {
+  return {
+    "content-type": "application/json",
+    "x-request-id": "req-7f3a",
+    status:         503,
+  };
+} > response
+:calc {
+  return {
+    contentType:   $response["content-type"],
+    hasRetryAfter: has($response, "retry-after"),
+    fields:        keys($response),
+    fieldCount:    length($response),
+  };
+} > responseFacts
+// Step 9: Lists
+:calc { return [120, 95, 310, 88]; } > latenciesMs
+:calc {
+  return {
+    first:  $latenciesMs[0],
+    last:   $latenciesMs[3],
+    count:  length($latenciesMs),
+    middle: slice($latenciesMs, 1, 3),
+  };
+} > latencyFacts
+// Step 10: Option
+:calc { return none; } > noRetryAfter
+:calc { return some(30); } > retryAfter
+:calc {
+  return {
+    missing:    unwrapOr($noRetryAfter, 5),
+    present:    unwrapOr($retryAfter, 5),
+    hasMissing: isSome($noRetryAfter),
+  };
+} > retryDelays
+// Step 11: JSON
+:calc {
+  return parseJson(
+    '{"status": "degraded", "uptimeSeconds": 86400, '
+    + '"load": 0.75, "maintenance": null}'
+  );
+} > health
+:calc {
+  return {
+    status:      $health.status,
+    load:        $health.load,
+    maintenance: unwrapOr($health.maintenance, "none scheduled"),
+  };
+} > healthFacts

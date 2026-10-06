@@ -1,0 +1,4 @@
+:calc {
+  const wrap = status => { status: status };
+  return wrap(200);
+} > wrapped

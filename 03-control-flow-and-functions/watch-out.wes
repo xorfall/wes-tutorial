@@ -1,0 +1,40 @@
+:calc {
+  return [
+    { route: "/orders",      status: 200, durationMs: 120  },
+    { route: "/orders",      status: 201, durationMs: 95   },
+    { route: "/orders/{id}", status: 404, durationMs: 40   },
+    { route: "/checkout",    status: 503, durationMs: 1250 },
+    { route: "/checkout",    status: 200, durationMs: 310  },
+    { route: "/orders/{id}", status: 200, durationMs: 88   },
+    { route: "/checkout",    status: 500, durationMs: 990  },
+    { route: "/orders",      status: 200, durationMs: 105  },
+  ];
+} > samples
+:calc {
+  let counts = { ok: 0, failed: 0 };
+  for (const sample of $samples) {
+    if (sample.status >= 500) {
+      counts = counts.withFields({ failed: counts.failed + 1 });
+    } else {
+      counts = counts.withFields({ ok: counts.ok + 1 });
+    }
+  }
+  return counts;
+} > counts
+:calc {
+  let schedule = [];
+  let delayMs = 100;
+  while (delayMs <= 1600) {
+    schedule = concat(schedule, [delayMs]);
+    delayMs = delayMs * 2;
+  }
+  return schedule;
+} > schedule
+:calc {
+  const response = { status: 503, retryAfter: 30 };
+  let fields = [];
+  for (const key of keys(response)) {
+    fields = concat(fields, [key]);
+  }
+  return fields.join(", ");
+} > fieldNames

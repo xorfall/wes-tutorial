@@ -1,0 +1,16 @@
+:calc { return 1250 * 12 * 24 * 30; } > requests30d
+:calc { return 99.95; } > sloTarget
+// Exercise 1
+:calc {
+  return int(decimal($requests30d) * (100.0 - $sloTarget) / 100.0);
+} > failureBudget
+// Exercise 2
+:calc { return div(404, 100); } > notFoundClass
+// Exercise 3
+:calc { return "billing-worker: " + text(503); } > statusLine
+// Exercise 4
+:calc { return div(404, 100) == 4; } > isClientError
+// Exercise 5
+:calc {
+  return parseJson('{"region": "eu-west-1", "zone": null}').region;
+} > region

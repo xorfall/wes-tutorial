@@ -1,0 +1,6 @@
+:calc {
+  if (1) {
+    return "yes";
+  }
+  return "no";
+} > answer

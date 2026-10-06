@@ -1,0 +1,5 @@
+// Exercise 1 (with the logs import of exercises.yaml)
+logs run cmd:"tail -n 1 deploy.log"
+// ---
+// Exercise 2
+edge run cmd:"cat /srv/orders-api/VERSION"

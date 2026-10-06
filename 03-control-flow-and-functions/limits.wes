@@ -1,0 +1,17 @@
+:calc {
+  let n = 0;
+  while (n < 50000) {
+    n = n + 1;
+  }
+  return n;
+} > loopTurns
+:calc { return length(range(600000)); } > bigList
+:calc {
+  function depth(n) {
+    if (n == 0) {
+      return 0;
+    }
+    return 1 + depth(n - 1);
+  }
+  return depth(126);
+} > deepest

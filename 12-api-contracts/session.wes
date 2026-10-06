@@ -1,0 +1,38 @@
+// Step 1: Describe the contract
+:describe file:"12-api-contracts/orders-api.openapi.yaml" provider:orders out:"12-api-contracts/orders.json" > draft
+// Step 2: Import the provider
+:import spec file:"12-api-contracts/orders.json" endpoint:"http://127.0.0.1:8770" as:orders
+:help orders
+:help orders listOrders
+:info orders > ordersInfo
+// Step 3: Call operations
+orders health > health
+orders listOrders limit:3 > recent
+orders listOrders limit:10 status:"open" > openOrders
+orders getOrder id:3 > failedOrder
+orders getOrder id:99 > unknownOrder
+// Step 4: Responses are data
+:calc {
+  return {
+    status:   $health.status,
+    healthy:  $health.body.status == "ok",
+    version:  $health.body.version,
+    found:    $unknownOrder.status != 404,
+    problem:  $unknownOrder.body.error,
+  };
+} > checks
+:calc {
+  return $openOrders.body.map(order => order.totalCents);
+} > openTotals
+// Step 5: Calls inside a calculation
+:calc {
+  const recent = call("orders", ["listOrders"], { limit: 10 });
+  let failedCents = 0;
+  for (const order of recent.body) {
+    if (order.status == "failed") {
+      const detail = call("orders", ["getOrder"], { id: order.id });
+      failedCents = failedCents + detail.body.totalCents;
+    }
+  }
+  return { orders: length(recent.body), failedCents: failedCents };
+} > failedValue

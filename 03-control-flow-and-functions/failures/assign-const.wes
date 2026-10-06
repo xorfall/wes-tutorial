@@ -1,0 +1,5 @@
+:calc {
+  const limit = 300;
+  limit = 500;
+  return limit;
+} > limit

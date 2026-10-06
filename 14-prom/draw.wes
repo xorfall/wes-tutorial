@@ -1,0 +1,9 @@
+$rateRaw
+  | Draw input:input.body span:$window p:$queries.rate.plot > rateData
+  | :view create Timeline > ratePanel
+$errorsRaw
+  | Draw input:input.body span:$window p:$queries.errors.plot > errorsData
+  | :view create Timeline > errorsPanel
+$p95Raw
+  | Draw input:input.body span:$window p:$queries.latency.plot > latencyData
+  | :view create Timeline > latencyPanel

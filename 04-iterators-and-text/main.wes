@@ -1,0 +1,105 @@
+// An access log: one request per line, fields separated by spaces.
+:calc {
+  return "# client method path status durationMs\n"
+    + "10.0.0.5 GET /orders 200 120\n"
+    + "10.0.0.7 POST /checkout 503 1250\n"
+    + "10.0.0.5 GET /orders/17 404 40\n"
+    + "10.0.0.9 POST /checkout 200 310\n"
+    + "10.0.0.7 GET /orders 200 105\n"
+    + "10.0.0.9 POST /checkout 500 990\n";
+} > accessLog
+// Step 1: Lines
+:calc { return iter.lines($accessLog).count(); } > lineCount
+:calc { return iter.lines($accessLog).take(2).collect(); } > firstLines
+// Step 2: An iterator as a result
+:calc { return iter.lines($accessLog).skip(1); } > requestLines
+:calc { return $requestLines.count(); } > requestCount
+// Step 3: Words
+:calc {
+  return $requestLines.map(line => {
+    const fields = iter.words(line).collect();
+    return {
+      client:     fields[0],
+      method:     fields[1],
+      path:       fields[2],
+      status:     int(fields[3]),
+      durationMs: int(fields[4]),
+    };
+  }).collect();
+} > requests
+// Step 4: Regular expressions
+:calc {
+  return $requestLines
+    .filter(line => iter.matches(line, " 5[0-9][0-9] ").count() > 0)
+    .count();
+} > serverErrors
+:calc {
+  return iter.matches($accessLog, "/orders/[0-9]+").collect();
+} > orderPaths
+:calc {
+  return iter.captures($accessLog, " (5[0-9][0-9]) ([0-9]+)")
+    .map(found => {
+      return {
+        status:     unwrapOr(found.groups[0], ""),
+        durationMs: unwrapOr(found.groups[1], ""),
+      };
+    })
+    .collect();
+} > serverErrorsAt
+// Step 5: Split
+:calc {
+  return iter.split("timeout=30;retries=3;region=eu-west-1", ";")
+    .map(pair => {
+      const parts = iter.split(pair, "=").collect();
+      return { key: parts[0], value: parts[1] };
+    })
+    .collect();
+} > settings
+// Step 6: Characters and slices
+:calc {
+  const message = "payment provider timed out after 30 seconds";
+  return {
+    preview: slice(message, 0, 22) + "...",
+    digits:  iter.chars(message)
+      .filter(c => iter.matches(c, "[0-9]").count() > 0)
+      .count(),
+  };
+} > messageFacts
+// Step 7: Record fields
+:calc {
+  const headers = {
+    "content-type": "application/json",
+    "x-request-id": "req-7f3a",
+    "x-trace-id":   "trace-91c2",
+  };
+  return iter.entries(headers)
+    .filter(entry => iter.matches(entry.key, "^x-").count() > 0)
+    .map(entry => entry.key + "=" + entry.value)
+    .collect();
+} > tracingHeaders
+// Step 8: JSON Lines
+:calc {
+  return '{"level": "info", "ms": 12, "msg": "order created"}\n'
+    + '{"level": "error", "ms": 340, "msg": "payment timeout"}\n'
+    + '{"level": "warn", "ms": 95, "msg": "retrying payment"}\n';
+} > appLog
+:calc {
+  return iter.jsonLines($appLog)
+    .filter(event => event.level == "error")
+    .map(event => event.msg)
+    .collect();
+} > errorMessages
+// Step 9: Loops with effects
+:calc {
+  let problems = 0;
+  for (const event of iter.jsonLines($appLog)) {
+    if (event.level != "info") {
+      problems = problems + 1;
+    }
+  }
+  return problems;
+} > problems
+// Step 10: Typed iterators from a package
+:package load path:"request-lines.types.yaml"
+:calc { return iter.use("requestEntries", $accessLog); } > entries
+:calc { return $entries.count(); } > entryCount

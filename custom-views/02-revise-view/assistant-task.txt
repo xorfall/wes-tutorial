@@ -1,0 +1,9 @@
+Make a second version of ServiceBoard called ServiceBoardPriority.
+Put down services first, degraded services next and healthy services last.
+Keep the original order within each group.
+Move the p95 / ms column before Requests / s. Keep the same input and theme.
+Read the current View authoring guidance through Wes MCP.
+Use a new package name and id; preserve the original source and View.
+Write view-work/service-board-priority, build and check it, and return
+view-work/service-board-priority.wes-view.json with the test results.
+Leave workspace installation to me.

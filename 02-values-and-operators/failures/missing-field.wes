@@ -1,0 +1,2 @@
+:calc { return { status: 503 }; } > response
+:calc { return $response.retryAfter; } > retryAfter

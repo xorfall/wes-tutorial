@@ -1,0 +1,53 @@
+// Checkout requests around a deployment; one line arrived out of order.
+:calc {
+  return "2026-09-28T14:26:10Z GET /checkout 200 180\n"
+    + "2026-09-28T14:28:45Z GET /checkout 200 210\n"
+    + "2026-09-28T14:31:05Z POST /checkout 503 1250\n"
+    + "2026-09-28T14:29:30Z GET /checkout 200 190\n"
+    + "2026-09-28T14:33:40Z POST /checkout 500 990\n"
+    + "2026-09-28T14:36:15Z GET /checkout 200 240\n"
+    + "2026-09-28T14:41:50Z GET /checkout 200 205\n";
+} > checkoutLog
+:calc { return instant("2026-09-28T17:30:00+03:00"); } > deployedAt
+:calc {
+  return iter.captures(
+      $checkoutLog,
+      "(?m)^(\\S+) \\S+ \\S+ ([0-9]{3}) ([0-9]+)$"
+    )
+    .map(found => {
+      const groups = found.groups.map(group => unwrapOr(group, ""));
+      return {
+        at:         instant(groups[0]),
+        status:     int(groups[1]),
+        durationMs: int(groups[2]),
+      };
+    })
+    .collect()
+    .sortBy(request => request.at);
+} > requests
+// Exercise 1
+:calc {
+  return $requests[length($requests) - 1].at - $requests[0].at;
+} > logSpan
+// Exercise 2
+:calc {
+  const window = around($deployedAt, duration("PT5M"));
+  return length($requests.filter(request => request.at >= window.start
+    && request.at < window.end));
+} > nearDeploy
+// Exercise 3
+:calc {
+  const firstError = $requests.filter(request => request.status >= 500)[0];
+  return int(toEpochMillis(firstError.at));
+} > firstErrorMs
+// Exercise 4
+:calc {
+  let longest = duration("PT0S");
+  for (const i of range(1, length($requests))) {
+    const gap = $requests[i].at - $requests[i - 1].at;
+    if (gap > longest) {
+      longest = gap;
+    }
+  }
+  return longest;
+} > longestGap

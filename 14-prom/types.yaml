@@ -1,0 +1,87 @@
+version: 1
+types:
+  TimelineKind: {base: Text, enum: [timeline]}
+  TimelineGroupKind: {base: Text, enum: [timeline-group]}
+  TimelineKey: {base: Text, minLength: 1, maxLength: 128}
+  TimelineText: {base: Text, maxLength: 2048}
+  TimelineSample:
+    base: Record
+    fields: {id: TimelineKey, at: Instant, value: 'Union<Int, Decimal>', gap: Bool}
+  TimelineSeries:
+    base: Record
+    fields: {id: TimelineKey, label: TimelineText, unit: TimelineText, samples: 'List<TimelineSample>'}
+  TimelineEvent:
+    base: Record
+    fields: {id: TimelineKey, at: Instant, label: TimelineText, detail: TimelineText}
+  Timeline:
+    base: Record
+    fields:
+      view: TimelineKind
+      id: TimelineKey
+      title: TimelineText
+      range: Interval
+      coverage: Interval
+      omitted: Int
+      sourceError: TimelineText
+      series: 'List<TimelineSeries>'
+      events: 'List<TimelineEvent>'
+  TimelineGroup:
+    base: Record
+    fields: {view: TimelineGroupKind, title: TimelineText, range: Interval}
+  TimeRange:
+    base: Record
+    fields: {start: Instant, end: Instant}
+  TimelineItem:
+    base: Record
+    fields: {source: Text, series: Text, id: Text, at: Instant, value: Text}
+  TimeState:
+    base: Record
+    fields: {viewport: TimeRange, cursor: 'Option<Instant>', selection: 'Option<TimeRange>', draft: 'Option<TimeRange>', selectedItem: 'Option<TimelineItem>'}
+  CursorKind: {base: Text, enum: [cursor]}
+  ViewportKind: {base: Text, enum: [viewport]}
+  SelectionKind: {base: Text, enum: [selection, selection-preview]}
+  ItemKind: {base: Text, enum: [item]}
+  CursorEvent:
+    base: Record
+    fields: {kind: CursorKind, at: 'Option<Instant>'}
+  ViewportEvent:
+    base: Record
+    fields: {kind: ViewportKind, range: TimeRange}
+  SelectionEvent:
+    base: Record
+    fields: {kind: SelectionKind, range: 'Option<TimeRange>'}
+  ItemEvent:
+    base: Record
+    fields: {kind: ItemKind, item: 'Option<TimelineItem>'}
+  TimeEvent: {base: 'Union<CursorEvent, Union<ViewportEvent, Union<SelectionEvent, ItemEvent>>>'}
+
+  MetricKind: {base: Text, enum: [metric]}
+  MetricText: {base: Text, maxLength: 256}
+  Metric:
+    base: Record
+    fields:
+      view: MetricKind
+      value: 'Union<Int, Decimal>'
+      label: {type: MetricText, optional: true}
+      unit: {type: MetricText, optional: true}
+      status: {type: MetricText, optional: true}
+
+  HttpSuccess: {base: Text, enum: [success]}
+  MatrixResult: {base: Text, enum: [matrix]}
+  PairLength: {base: Int, enum: [2]}
+  SingleSeries: {base: Int, enum: [1]}
+  HasSamples: {base: Bool, enum: [true]}
+  SingleOrEmpty: {base: Int, enum: [0, 1]}
+  Header:
+    base: Record
+    fields: {name: Text, value: Text}
+  HttpResponse:
+    base: Record
+    fields:
+      status: Int
+      version: Text
+      headers: List<Header>
+      body: Record
+      bodyKind: Text
+      originalBody: Bytes
+      validation: Record

@@ -1,0 +1,3 @@
+:calc { return 1250; } > requests
+:calc { return 30; } > errors
+:calc pure { return $errors * 100 / $requests; } > pureRate

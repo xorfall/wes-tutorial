@@ -1,0 +1,40 @@
+// Request samples used throughout the chapter.
+:calc {
+  return [
+    { route: "/orders",      status: 200, durationMs: 120  },
+    { route: "/orders",      status: 201, durationMs: 95   },
+    { route: "/orders/{id}", status: 404, durationMs: 40   },
+    { route: "/checkout",    status: 503, durationMs: 1250 },
+    { route: "/checkout",    status: 200, durationMs: 310  },
+    { route: "/orders/{id}", status: 200, durationMs: 88   },
+    { route: "/checkout",    status: 500, durationMs: 990  },
+    { route: "/orders",      status: 200, durationMs: 105  },
+  ];
+} > samples
+// Exercise 1
+:calc {
+  return length($samples.filter(sample => div(sample.status, 100) == 2));
+} > successCount
+// Exercise 2
+:calc {
+  function isSlow(sample) {
+    return sample.durationMs > 300;
+  }
+  return $samples.filter(isSlow).map(sample => sample.route);
+} > slowRoutes
+// Exercise 3
+:calc {
+  const hits = $samples.filter(sample => sample.route == "/checkout");
+  const failures = hits.filter(sample => sample.status >= 500);
+  return roundDiv(length(failures) * 100, length(hits), 1);
+} > checkoutErrors
+// Exercise 4
+:calc {
+  let delayMs = 100;
+  let doublings = 0;
+  while (delayMs <= 60000) {
+    delayMs = delayMs * 2;
+    doublings = doublings + 1;
+  }
+  return doublings;
+} > doublings

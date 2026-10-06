@@ -1,0 +1,4 @@
+:workspace save "capacity-0930"
+:workspace plan delete workspace:"capacity-0930" > plan
+:workspace delete $plan
+:list workspaces

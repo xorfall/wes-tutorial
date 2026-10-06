@@ -1,0 +1,23 @@
+:workspace policy mode:manual
+// ---
+sh run cmd:"printf 3" > replicas
+:calc { return 250; } > perReplicaRps
+:calc {
+  return int(text($replicas.stdout)) * $perReplicaRps;
+} > capacityRps
+:calc { return $capacityRps - 600; } > headroomRps
+// ---
+// Exercise 1
+:calc { return $capacityRps - 900; } > headroomAt900
+// ---
+:change $headroomRps value:900
+// ---
+// Exercise 2
+:policy $capacityRps mode:reactive
+// ---
+:refresh $replicas
+// ---
+:list runs
+// ---
+// Exercise 3
+:refresh $replicas scope:downstream

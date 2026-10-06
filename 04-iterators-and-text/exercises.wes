@@ -1,0 +1,47 @@
+// An access log: one request per line, fields separated by spaces.
+:calc {
+  return "# client method path status durationMs\n"
+    + "10.0.0.5 GET /orders 200 120\n"
+    + "10.0.0.7 POST /checkout 503 1250\n"
+    + "10.0.0.5 GET /orders/17 404 40\n"
+    + "10.0.0.9 POST /checkout 200 310\n"
+    + "10.0.0.7 GET /orders 200 105\n"
+    + "10.0.0.9 POST /checkout 500 990\n";
+} > accessLog
+:calc {
+  return '{"level": "info", "ms": 12, "msg": "order created"}\n'
+    + '{"level": "error", "ms": 340, "msg": "payment timeout"}\n'
+    + '{"level": "warn", "ms": 95, "msg": "retrying payment"}\n';
+} > appLog
+// Exercise 1
+:calc {
+  return iter.lines($accessLog)
+    .skip(1)
+    .filter(line => iter.words(line).collect()[0] == "10.0.0.9")
+    .count();
+} > fromClient9
+// Exercise 2
+:calc {
+  return iter.lines($accessLog)
+    .filter(line => iter.matches(line, " 4[0-9][0-9] ").count() > 0)
+    .count();
+} > clientErrors
+// Exercise 3
+:calc {
+  return iter.lines($accessLog)
+    .skip(1)
+    .map(line => iter.words(line).collect())
+    .filter(fields => fields[1] == "POST")
+    .reduce((sum, fields) => sum + int(fields[4]), 0);
+} > postDurationMs
+// Exercise 4
+:calc {
+  return iter.jsonLines($appLog)
+    .reduce((slowest, event) => {
+      if (event.ms > slowest.ms) {
+        return event;
+      }
+      return slowest;
+    }, { level: "none", ms: 0, msg: "none" })
+    .msg;
+} > slowestMessage
